@@ -753,6 +753,12 @@ textarea.form-control {
 	opacity: 0.65;
 }
 
+.recaptcha-wrapper {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 1rem;
+}
+
 .contact-methods {
 	display: grid;
 	margin-top: auto;

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import axios from 'axios'
 import { Notyf } from 'notyf'
 import 'notyf/notyf.min.css'
@@ -7,6 +7,7 @@ import 'notyf/notyf.min.css'
 const notyf = new Notyf()
 
 const WEB3FORMS_ACCESS_KEY = 'd8e6ded9-e12d-49c0-9791-b8b52ff3ece2'
+const SITE_KEY = '6LcCkBouAAAAAH2cClklegzChZLuJefZbG7qg81i'
 const subject = 'New message from Portfolio Contact Form'
 
 const name = ref('')
@@ -14,15 +15,53 @@ const email = ref('')
 const message = ref('')
 const isLoading = ref(false)
 
+const recaptchaContainer = ref(null)
+const recaptchaWidgetId = ref(null)
+const recaptchaToken = ref('')
+
+let recaptchaLoadInterval
+
 const contactMethods = [
   { label: 'Email', value: 'jel@work.com', icon: 'gmail' },
   { label: 'Mobile', value: '+63 987 6543 210', icon: 'flag' },
   { label: 'Location', value: 'Anywhere, Street', icon: 'location' }
 ]
 
+function onRecaptchaSuccess(token) {
+  recaptchaToken.value = token
+}
+
+function onRecaptchaExpired() {
+  recaptchaToken.value = ''
+}
+
+function renderRecaptcha() {
+  if (!window.grecaptcha || !recaptchaContainer.value || recaptchaWidgetId.value !== null) return
+
+  recaptchaWidgetId.value = window.grecaptcha.render(recaptchaContainer.value, {
+    sitekey: SITE_KEY,
+    size: 'normal',
+    callback: onRecaptchaSuccess,
+    'expired-callback': onRecaptchaExpired
+  })
+}
+
+function resetRecaptcha() {
+  if (recaptchaWidgetId.value !== null && window.grecaptcha) {
+    window.grecaptcha.reset(recaptchaWidgetId.value)
+  }
+
+  recaptchaToken.value = ''
+}
+
 async function submitForm() {
   if (!name.value.trim() || !email.value.trim() || !message.value.trim()) {
     notyf.error('Please complete all fields.')
+    return
+  }
+
+  if (!recaptchaToken.value) {
+    notyf.error('Please verify that you are not a robot.')
     return
   }
 
@@ -56,9 +95,23 @@ async function submitForm() {
   } catch (error) {
     notyf.error(error.response?.data?.message || error.message || 'Failed to send email!')
   } finally {
+    resetRecaptcha()
     isLoading.value = false
   }
 }
+
+onMounted(() => {
+  recaptchaLoadInterval = setInterval(() => {
+    if (window.grecaptcha?.render) {
+      renderRecaptcha()
+      clearInterval(recaptchaLoadInterval)
+    }
+  }, 100)
+})
+
+onBeforeUnmount(() => {
+  clearInterval(recaptchaLoadInterval)
+})
 </script>
 
 <template>
@@ -122,6 +175,9 @@ async function submitForm() {
               <label for="message" class="form-label">Message</label>
               <textarea v-model="message" class="form-control" id="message" name="message" rows="5" placeholder="Tell me about your project..." required></textarea>
             </div>
+          </div>
+          <div class="recaptcha-wrapper">
+            <div ref="recaptchaContainer"></div>
           </div>
           <button type="submit" class="btn-primary-custom" :disabled="isLoading">
             {{ isLoading ? 'Sending...' : 'Submit' }}
