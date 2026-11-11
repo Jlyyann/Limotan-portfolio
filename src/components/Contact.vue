@@ -7,7 +7,7 @@ import 'notyf/notyf.min.css'
 const notyf = new Notyf()
 
 const WEB3FORMS_ACCESS_KEY = 'd8e6ded9-e12d-49c0-9791-b8b52ff3ece2'
-const SITE_KEY = '6LdtsRouAAAAABgN4sDuzC37E3ItmJyYuw3UvdsV'
+const SITE_KEY = '6LeushouAAAAAP-XpefzYyjcOdFZSRrm2xmVzPfd'
 const subject = 'New message from Portfolio Contact Form'
 
 const name = ref('')
