@@ -7,7 +7,7 @@ import 'notyf/notyf.min.css'
 const notyf = new Notyf()
 
 const WEB3FORMS_ACCESS_KEY = 'd8e6ded9-e12d-49c0-9791-b8b52ff3ece2'
-const SITE_KEY = '6LeushouAAAAAP-XpefzYyjcOdFZSRrm2xmVzPfd'
+const SITE_KEY = '6LddtBouAAAAAC0r1kzmZUG8NAXfZ4zEKhD_HefM'
 const subject = 'New message from Portfolio Contact Form'
 
 const name = ref('')
@@ -36,20 +36,19 @@ function onRecaptchaExpired() {
 }
 
 function renderRecaptcha() {
-  if (!window.grecaptcha?.enterprise || !recaptchaContainer.value || recaptchaWidgetId.value !== null) return
+  if (!window.grecaptcha || !recaptchaContainer.value || recaptchaWidgetId.value !== null) return
 
-  recaptchaWidgetId.value = window.grecaptcha.enterprise.render(recaptchaContainer.value, {
+  recaptchaWidgetId.value = window.grecaptcha.render(recaptchaContainer.value, {
     sitekey: SITE_KEY,
     size: 'normal',
-    action: 'CONTACT',
     callback: onRecaptchaSuccess,
     'expired-callback': onRecaptchaExpired
   })
 }
 
 function resetRecaptcha() {
-  if (recaptchaWidgetId.value !== null && window.grecaptcha?.enterprise) {
-    window.grecaptcha.enterprise.reset(recaptchaWidgetId.value)
+  if (recaptchaWidgetId.value !== null && window.grecaptcha) {
+    window.grecaptcha.reset(recaptchaWidgetId.value)
   }
 
   recaptchaToken.value = ''
@@ -103,7 +102,7 @@ async function submitForm() {
 
 onMounted(() => {
   recaptchaLoadInterval = setInterval(() => {
-    if (window.grecaptcha?.enterprise?.render) {
+    if (window.grecaptcha?.render) {
       renderRecaptcha()
       clearInterval(recaptchaLoadInterval)
     }
