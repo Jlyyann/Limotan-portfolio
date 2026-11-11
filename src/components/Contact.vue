@@ -36,19 +36,20 @@ function onRecaptchaExpired() {
 }
 
 function renderRecaptcha() {
-  if (!window.grecaptcha || !recaptchaContainer.value || recaptchaWidgetId.value !== null) return
+  if (!window.grecaptcha?.enterprise || !recaptchaContainer.value || recaptchaWidgetId.value !== null) return
 
-  recaptchaWidgetId.value = window.grecaptcha.render(recaptchaContainer.value, {
+  recaptchaWidgetId.value = window.grecaptcha.enterprise.render(recaptchaContainer.value, {
     sitekey: SITE_KEY,
     size: 'normal',
+    action: 'CONTACT',
     callback: onRecaptchaSuccess,
     'expired-callback': onRecaptchaExpired
   })
 }
 
 function resetRecaptcha() {
-  if (recaptchaWidgetId.value !== null && window.grecaptcha) {
-    window.grecaptcha.reset(recaptchaWidgetId.value)
+  if (recaptchaWidgetId.value !== null && window.grecaptcha?.enterprise) {
+    window.grecaptcha.enterprise.reset(recaptchaWidgetId.value)
   }
 
   recaptchaToken.value = ''
@@ -102,7 +103,7 @@ async function submitForm() {
 
 onMounted(() => {
   recaptchaLoadInterval = setInterval(() => {
-    if (window.grecaptcha?.render) {
+    if (window.grecaptcha?.enterprise?.render) {
       renderRecaptcha()
       clearInterval(recaptchaLoadInterval)
     }
